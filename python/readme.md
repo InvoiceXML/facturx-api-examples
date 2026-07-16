@@ -16,6 +16,8 @@ Pass it as a Bearer token on every request:
 Authorization: Bearer YOUR_API_KEY
 ```
 
+**Important:** set `api_key` in the examples to the raw key only, without the `Bearer ` prefix. If your account page shows the full header value (e.g. `Bearer ixml_a1b2c3...`), copy only the part after `Bearer `. The code adds the prefix itself when building the `Authorization` header.
+
 ## Requirements
 
 - **Python 3.7 or later** (3.10+ recommended)
@@ -45,6 +47,8 @@ uv pip install requests
 
 Each file is standalone and runnable with `python create.py`. Open the file, replace `YOUR_API_KEY` with your real key, and execute.
 
+> **Note on the snippets below:** they are excerpts from those files and assume `api_key` is already defined. When in doubt, copy the complete file.
+
 ---
 
 ## Create a Factur-X invoice in Python
@@ -60,7 +64,7 @@ payload = {
         "seller": {
             "name":              "Acme",
             "vatIdentifier":     "DE123456789",
-            "legalRegistration": "HRB 12345",
+            "legalRegistration": {"identifier": "HRB 12345"},
             "postalAddress": {"line1": "Hauptstraße 12", "city": "Berlin", "postCode": "10115", "country": "DE"},
         },
         "buyer": {
@@ -87,7 +91,7 @@ with open("invoice-facturx.pdf", "wb") as f:
     f.write(response.content)
 ```
 
-The response is a binary PDF/A-3 file with the Factur-X XML already embedded. Note: `requests` is told to send multipart/form-data by passing the fields as `files=` with `(None, value)` tuples, matching the documented curl `-F` behavior.
+The response is a binary PDF/A-3 file with the Factur-X XML already embedded.
 
 [Full example: `create.py`](./create.py) | [API reference](https://www.invoicexml.com/docs/api/create/facturx)
 
@@ -126,8 +130,9 @@ response = requests.post(
     files={"file": ("invoice.pdf", open("invoice.pdf", "rb"), "application/pdf")},
 )
 
-invoice = response.json()
-print(invoice["seller"]["name"], invoice["totals"]["gross"])
+data = response.json()
+# The invoice model is nested under the "invoice" key.
+print(data["invoice"]["seller"]["name"])
 ```
 
 [Full example: `extract_json.py`](./extract_json.py) | [API reference](https://www.invoicexml.com/docs/api/extract/json)
@@ -256,7 +261,7 @@ The `requests` library works in Lambda directly. Include it via Lambda layers or
 
 ## Common issues
 
-- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`.
+- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`. A frequent cause: setting `api_key` to the whole `Bearer xxx` value, which sends `Bearer Bearer xxx`. Set the raw key only.
 - **`HTTP 400 Bad Request` on Create**: a required field is missing or malformed. Frequent causes: `IssueDate` not in ISO format (`YYYY-MM-DD`), `Currency` not in ISO 4217 (`EUR`, `USD`), country codes not in ISO 3166-1 alpha-2 (`DE`, `FR`).
 - **`SSL: CERTIFICATE_VERIFY_FAILED` on macOS**: run `/Applications/Python\ 3.x/Install\ Certificates.command` to install Python's CA bundle. Do not disable SSL verification in production.
 - **`ConnectionError` or timeout**: add an explicit `timeout=30` parameter to `requests.post()`. AI conversion in particular can take 10 to 30 seconds for larger PDFs.

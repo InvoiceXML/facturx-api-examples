@@ -1,6 +1,6 @@
 # Factur-X for C# and .NET: InvoiceXML REST API Examples
 
-C# and .NET code samples for creating, validating, and extracting **Factur-X** electronic invoices using the **[invoicexml.com API](https://www.invoicexml.com)**. Compatible with **.NET 6, .NET 8, and .NET Framework 4.7.2+**, and ready to drop into console apps, ASP.NET Core Web APIs, Blazor, MAUI, Azure Functions, or AWS Lambda.
+C# and .NET code samples for creating, validating, and extracting **Factur-X** electronic invoices using the **[invoicexml.com API](https://www.invoicexml.com)**. Requires **.NET 6 or later** (.NET 8 recommended), and ready to drop into console apps, ASP.NET Core Web APIs, Blazor, MAUI, Azure Functions, or AWS Lambda.
 
 ## Get your API key
 
@@ -14,11 +14,13 @@ Pass it as a Bearer token on every request:
 Authorization: Bearer YOUR_API_KEY
 ```
 
+**Important:** pass the raw key only, without the `Bearer ` prefix. If your account page shows the full header value (e.g. `Bearer ixml_a1b2c3...`), copy only the part after `Bearer `. Flurl's `WithOAuthBearerToken(apiKey)` adds the prefix itself.
+
 ## Requirements
 
-- **.NET 6.0 or later** (recommended: .NET 8)
-- **.NET Framework 4.7.2+** also supported
+- **.NET 6.0 or later** (recommended: .NET 8) with `ImplicitUsings` enabled (the default in new SDK-style projects)
 - Runs on Windows, Linux, macOS, Docker, Azure, and AWS Lambda
+- On **.NET Framework 4.7.2+** the API calls work too (Flurl.Http targets .NET Standard 2.0), but the files as written need small changes: add the `using System; using System.IO; using System.Threading.Tasks;` directives and replace `File.WriteAllBytesAsync` / `File.WriteAllTextAsync` (not available on .NET Framework) with the synchronous `File.WriteAllBytes` / `File.WriteAllText`
 - One NuGet package: [Flurl.Http](https://www.nuget.org/packages/Flurl.Http) for clean multipart uploads and bearer auth
 
 ```bash
@@ -36,6 +38,8 @@ If you prefer plain `HttpClient` over Flurl, every example translates directly. 
 | [`ExtractJson.cs`](./ExtractJson.cs) | Extract Factur-X invoice data as JSON | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`ExtractXml.cs`](./ExtractXml.cs) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
 | [`AiConvert.cs`](./AiConvert.cs) | (Experimental) Convert a plain PDF to Factur-X with AI | [`POST /v1/transform/to/facturx`](https://www.invoicexml.com/docs/api/transform/to/facturx) |
+
+> **Note on the snippets below:** they are excerpts from those files and assume an `apiKey` variable is already defined and that the code runs inside an `async` method. The full files show the complete, compilable versions.
 
 ---
 
@@ -55,7 +59,7 @@ var payload = new
         {
             name              = "Acme",
             vatIdentifier     = "DE123456789",
-            legalRegistration = "HRB 12345",
+            legalRegistration = new { identifier = "HRB 12345" },
             postalAddress     = new { line1 = "Hauptstraße 12", city = "Berlin", postCode = "10115", country = "DE" }
         },
         buyer = new
@@ -212,7 +216,7 @@ await ExtractJson.RunAsync("invoice.pdf");
 
 ## Common issues
 
-- **401 Unauthorized**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`.
+- **401 Unauthorized**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`. A frequent cause: passing the whole `Bearer xxx` value as the key, which sends `Bearer Bearer xxx`. Pass the raw key only.
 - **400 Bad Request on Create**: a required field is missing or malformed. Frequent causes: `IssueDate` not in ISO format (`YYYY-MM-DD`), `Currency` not in ISO 4217 (`EUR`, `USD`), country codes not in ISO 3166-1 alpha-2 (`DE`, `FR`).
 - **Schematron BR-CO-* failures on Validate**: line totals do not match the header total, or tax category and tax percentage are inconsistent. Recompute totals or leave empty for auto-calculation when posting.
 

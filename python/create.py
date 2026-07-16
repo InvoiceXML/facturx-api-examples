@@ -9,6 +9,7 @@
 import requests
 import sys
 
+# Raw key only, without the "Bearer " prefix (it is added below).
 api_key = "YOUR_API_KEY"
 
 payload = {
@@ -19,7 +20,7 @@ payload = {
         "seller": {
             "name":              "Acme",
             "vatIdentifier":     "DE123456789",
-            "legalRegistration": "HRB 12345",
+            "legalRegistration": {"identifier": "HRB 12345"},
             "postalAddress": {
                 "line1":    "Hauptstraße 12",
                 "city":     "Berlin",

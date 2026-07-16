@@ -391,7 +391,7 @@
     // Auth / quota / server errors: just show the title + detail.
     const title = problem.title || ('HTTP ' + httpStatus);
     const detail = problem.detail || 'Request failed.';
-    showStatus('error', title + ' — ' + detail);
+    showStatus('error', title + ': ' + detail);
   }
 })();
 </script>

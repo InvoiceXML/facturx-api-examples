@@ -16,6 +16,8 @@ Pass it as a Bearer token on every request:
 Authorization: Bearer YOUR_API_KEY
 ```
 
+**Important:** set `apiKey` in the examples to the raw key only, without the `Bearer ` prefix. If your account page shows the full header value (e.g. `Bearer ixml_a1b2c3...`), copy only the part after `Bearer `. The code adds the prefix itself when building the `Authorization` header.
+
 ## Requirements
 
 - **Node.js 18.0 or later** (current LTS recommended: Node 20 or 22)
@@ -35,6 +37,8 @@ The examples use Node's built-in global `fetch`, `FormData`, `Blob`, and `Buffer
 
 Each file is standalone and runnable with `node create.js`. Open the file, replace `YOUR_API_KEY` with your real key, and execute.
 
+> **Note on the snippets below:** they are excerpts from those files and assume `apiKey` (and `fs`) are already defined. They also use `await` at the top level, which is not valid in a plain CommonJS script; the full files wrap the calls in an `async` IIFE. When in doubt, copy the complete file.
+
 ---
 
 ## Create a Factur-X invoice in Node.js
@@ -48,7 +52,7 @@ const payload = {
         seller: {
             name:              'Acme',
             vatIdentifier:     'DE123456789',
-            legalRegistration: 'HRB 12345',
+            legalRegistration: { identifier: 'HRB 12345' },
             postalAddress: { line1: 'Hauptstraße 12', city: 'Berlin', postCode: '10115', country: 'DE' },
         },
         buyer: {
@@ -125,8 +129,9 @@ const response = await fetch('https://api.invoicexml.com/v1/extract/json', {
     body: form,
 });
 
-const invoice = await response.json();
-console.log(invoice.seller.name, invoice.totals.gross);
+const data = await response.json();
+// The invoice model is nested under the "invoice" key.
+console.log(data.invoice.seller.name);
 ```
 
 [Full example: `extract-json.js`](./extract-json.js) | [API reference](https://www.invoicexml.com/docs/api/extract/json)
@@ -216,7 +221,7 @@ Lambda's Node.js 18+ runtime provides native `fetch` and `FormData`, so the exam
 ## Common issues
 
 - **`fetch is not defined`**: you are running Node 16 or older. Upgrade to Node 18+ (current LTS), or polyfill with `npm install node-fetch form-data` and import accordingly.
-- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`.
+- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`. A frequent cause: setting `apiKey` to the whole `Bearer xxx` value, which sends `Bearer Bearer xxx`. Set the raw key only.
 - **`HTTP 400 Bad Request` on Create**: a required field is missing or malformed. Frequent causes: `IssueDate` not in ISO format (`YYYY-MM-DD`), `Currency` not in ISO 4217 (`EUR`, `USD`), country codes not in ISO 3166-1 alpha-2 (`DE`, `FR`).
 - **`ESM` vs `CommonJS`**: the examples use CommonJS (`require`). For ESM (`.mjs` extension or `"type": "module"` in `package.json`), swap `require('fs')` for `import fs from 'node:fs'` and you can use top-level await without the IIFE wrapper.
 - **Relative file paths**: `fs.readFileSync('invoice.pdf')` resolves from the current working directory, not the script file. Use `__dirname` (CommonJS) or `import.meta.dirname` (ESM, Node 20.11+) for absolute paths.

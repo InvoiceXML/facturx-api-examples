@@ -3,6 +3,7 @@
 // Get API key: https://www.invoicexml.com/account/authentication
 // Docs:        https://www.invoicexml.com/docs/api/validate/facturx
 
+// Raw key only, without the "Bearer " prefix (it is added below).
 $apiKey = 'YOUR_API_KEY';
 
 $ch = curl_init('https://api.invoicexml.com/v1/validate/facturx');

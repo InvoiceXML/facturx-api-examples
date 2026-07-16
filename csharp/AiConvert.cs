@@ -31,7 +31,12 @@ public static class AiConvert
         string language = "en")
     {
         // Get an InvoiceXML API key at: https://www.invoicexml.com/account/authentication
-        var apiKey = "INVOICEXML_API_KEY";
+        // Raw key only, without the "Bearer " prefix (WithOAuthBearerToken adds it).
+        var apiKey = Environment.GetEnvironmentVariable("INVOICEXML_API_KEY")
+            ?? throw new InvalidOperationException(
+                "Set INVOICEXML_API_KEY environment variable. " +
+                "Get an InvoiceXML API key at " +
+                "https://www.invoicexml.com/account/authentication");
 
         if (!File.Exists(inputPdfPath))
             throw new FileNotFoundException($"Input PDF not found: {inputPdfPath}");

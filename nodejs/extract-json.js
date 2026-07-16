@@ -6,6 +6,7 @@
 
 const fs = require('fs');
 
+// Raw key only, without the "Bearer " prefix (it is added below).
 const apiKey = 'YOUR_API_KEY';
 
 (async () => {

@@ -1,6 +1,6 @@
 # Factur-X for Java: InvoiceXML API Examples
 
-Java code samples for creating, validating, and extracting **Factur-X** electronic invoices using the **[InvoiceXML API](https://www.invoicexml.com)**. Compatible with **Java 8 and later**, including Java 11, 17, and 21 LTS. Runs in Spring Boot, Quarkus, Micronaut, Jakarta EE, Android, AWS Lambda, or plain `public static void main` console apps.
+Java code samples for creating, validating, and extracting **Factur-X** electronic invoices using the **[InvoiceXML API](https://www.invoicexml.com)**. Requires **Java 15 or later** (Java 17 or 21 LTS recommended): `Create.java` uses text blocks, which were introduced in Java 15. The other examples also compile on Java 8. Runs in Spring Boot, Quarkus, Micronaut, Jakarta EE, Android, AWS Lambda, or plain `public static void main` console apps.
 
 For background on the Factur-X standard itself (what it is, profiles, legal status), see the [main repository README](../README.md).
 
@@ -16,9 +16,11 @@ Pass it as a Bearer token on every request:
 Authorization: Bearer YOUR_API_KEY
 ```
 
+**Important:** set `apiKey` in the examples to the raw key only, without the `Bearer ` prefix. If your account page shows the full header value (e.g. `Bearer ixml_a1b2c3...`), copy only the part after `Bearer `. The code adds the prefix itself when building the `Authorization` header.
+
 ## Requirements
 
-- **Java 8 or later** (Java 17 or 21 LTS recommended)
+- **Java 15 or later** (Java 17 or 21 LTS recommended). `Create.java` uses text blocks, a Java 15+ feature; the other four examples also compile on Java 8.
 - **OkHttp 4.x** for clean multipart handling and bearer auth
 
 ### Maven
@@ -51,6 +53,8 @@ OkHttp is the de facto standard HTTP client for modern Java. Java's built-in `ja
 
 Each file is a standalone `public class` with a `main` method, runnable with `javac` and `java` directly, or as part of any Maven or Gradle project.
 
+> **Note on the snippets below:** they are excerpts from those files. The `try` blocks have no `catch` clause, so the enclosing method must declare `throws Exception` (or at least `throws IOException`), exactly as the full files do with `public static void main(String[] args) throws Exception`. Pasting a snippet into a method without that `throws` clause will not compile ("unreported exception IOException"). When in doubt, copy the complete file.
+
 ---
 
 ## Create a Factur-X invoice in Java
@@ -65,7 +69,7 @@ String json = """
         "seller": {
           "name": "Acme",
           "vatIdentifier": "DE123456789",
-          "legalRegistration": "HRB 12345",
+          "legalRegistration": { "identifier": "HRB 12345" },
           "postalAddress": { "line1": "Hauptstraße 12", "city": "Berlin", "postCode": "10115", "country": "DE" }
         },
         "buyer": {
@@ -229,7 +233,7 @@ Bundle OkHttp into your Lambda deployment package or layer. Cold-start latency i
 
 ## Common issues
 
-- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`.
+- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`. A frequent cause: pasting the whole `Bearer xxx` value as `apiKey`, which sends `Bearer Bearer xxx`. Set `apiKey` to the raw key only.
 - **`HTTP 400 Bad Request` on Create**: a required field is missing or malformed. Frequent causes: `IssueDate` not in ISO format (`YYYY-MM-DD`), `Currency` not in ISO 4217 (`EUR`, `USD`), country codes not in ISO 3166-1 alpha-2 (`DE`, `FR`).
 - **`RequestBody.create()` argument order**: OkHttp 4.x reversed the parameter order from 3.x. Use `RequestBody.create(File, MediaType)` for 4.x. The 3.x signature `(MediaType, File)` is deprecated but still callable.
 - **`Files.writeString` not found**: that method requires Java 11+. The examples use `Files.write(Path, byte[])` which works on Java 8+.

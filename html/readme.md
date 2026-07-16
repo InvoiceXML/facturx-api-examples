@@ -106,7 +106,7 @@ function handleApiError(httpStatus, problem) {
 
     // Auth / quota / server errors: title + detail only.
     showStatus('error', (problem.title || 'HTTP ' + httpStatus)
-                      + ' — ' + (problem.detail || 'Request failed.'));
+                      + ': ' + (problem.detail || 'Request failed.'));
 }
 ```
 
@@ -115,7 +115,7 @@ That's the whole contract. The rest of the file is form markup and a small `setD
 ## Requirements
 
 - Any modern browser: Chrome 95+, Firefox 90+, Safari 14+, Edge 95+.
-- An InvoiceXML API token. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication).
+- An InvoiceXML API token. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication). Paste the raw token only, without the `Bearer ` prefix; the form adds the prefix itself.
 - No server, no build step, no npm install. Open the file directly via `file://` or serve it with `python -m http.server` / `npx serve` if you prefer.
 
 ## Security warning

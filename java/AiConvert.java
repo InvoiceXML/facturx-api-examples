@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 
 public class AiConvert {
     public static void main(String[] args) throws Exception {
+        // Raw key only, without the "Bearer " prefix (it is added below).
         String apiKey = "YOUR_API_KEY";
 
         RequestBody body = new MultipartBody.Builder()

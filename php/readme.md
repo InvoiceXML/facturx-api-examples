@@ -16,6 +16,8 @@ Pass it as a Bearer token on every request:
 Authorization: Bearer YOUR_API_KEY
 ```
 
+**Important:** set `$apiKey` in the examples to the raw key only, without the `Bearer ` prefix. If your account page shows the full header value (e.g. `Bearer ixml_a1b2c3...`), copy only the part after `Bearer `. The code adds the prefix itself when building the `Authorization` header.
+
 ## Requirements
 
 - **PHP 7.0 or later** (PHP 8.2+ recommended)
@@ -36,6 +38,8 @@ These examples use the built-in `curl_*` functions and `CURLFile` (available sin
 
 Each file is standalone and runnable with `php create.php`. Open the file, replace `YOUR_API_KEY` with your real key, and execute.
 
+> **Note on the snippets below:** they are excerpts from those files and assume `$apiKey` is already defined. When in doubt, copy the complete file.
+
 ---
 
 ## Create a Factur-X invoice in PHP
@@ -49,7 +53,7 @@ $payload = [
         'seller' => [
             'name'              => 'Acme',
             'vatIdentifier'     => 'DE123456789',
-            'legalRegistration' => 'HRB 12345',
+            'legalRegistration' => ['identifier' => 'HRB 12345'],
             'postalAddress'     => ['line1' => 'Hauptstraße 12', 'city' => 'Berlin', 'postCode' => '10115', 'country' => 'DE'],
         ],
         'buyer' => [
@@ -124,7 +128,8 @@ curl_setopt_array($ch, [
 ]);
 $json = curl_exec($ch);
 $data = json_decode($json, true);
-echo $data['seller']['name'];
+// The invoice model is nested under the "invoice" key.
+echo $data['invoice']['seller']['name'];
 ```
 
 [Full example: `extract-json.php`](./extract-json.php) | [API reference](https://www.invoicexml.com/docs/api/extract/json)
@@ -240,7 +245,7 @@ The same pattern works in Magento, Drupal Commerce, and PrestaShop.
 
 ## Common issues
 
-- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`.
+- **`HTTP 401 Unauthorized`**: API key missing or invalid. Generate one at [invoicexml.com/account/authentication](https://www.invoicexml.com/account/authentication) and confirm you are sending `Authorization: Bearer YOUR_API_KEY`. A frequent cause: setting `$apiKey` to the whole `Bearer xxx` value, which sends `Bearer Bearer xxx`. Set the raw key only.
 - **`HTTP 400 Bad Request` on Create**: a required field is missing or malformed. Frequent causes: `IssueDate` not in ISO format (`YYYY-MM-DD`), `Currency` not in ISO 4217 (`EUR`, `USD`), country codes not in ISO 3166-1 alpha-2 (`DE`, `FR`).
 - **`Class "CURLFile" not found`**: PHP cURL extension is missing. Install with `apt-get install php-curl` (Debian/Ubuntu), `yum install php-curl` (RHEL), or enable the extension in `php.ini`.
 - **`SSL certificate problem` errors**: the server's CA bundle is out of date. Update OpenSSL on the host, or set `CURLOPT_CAINFO` to a current `cacert.pem` from curl.se/ca/.

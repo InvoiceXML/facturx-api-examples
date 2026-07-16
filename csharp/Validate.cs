@@ -19,7 +19,12 @@ public static class ValidateFacturX
         string profile = "extended")
     {
         // Get an InvoiceXML API key at: https://www.invoicexml.com/account/authentication
-        var apiKey = "INVOICEXML_API_KEY";
+        // Raw key only, without the "Bearer " prefix (WithOAuthBearerToken adds it).
+        var apiKey = Environment.GetEnvironmentVariable("INVOICEXML_API_KEY")
+            ?? throw new InvalidOperationException(
+                "Set INVOICEXML_API_KEY environment variable. " +
+                "Get an InvoiceXML API key at " +
+                "https://www.invoicexml.com/account/authentication");
 
         if (!File.Exists(pdfPath))
             throw new FileNotFoundException($"Input PDF not found: {pdfPath}");

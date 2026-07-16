@@ -18,6 +18,7 @@ public static class CreateFacturX
     {
         // Get an InvoiceXML API key at:
         // https://www.invoicexml.com/account/authentication
+        // Raw key only, without the "Bearer " prefix (WithOAuthBearerToken adds it).
         var apiKey = Environment.GetEnvironmentVariable("INVOICEXML_API_KEY")
             ?? throw new InvalidOperationException(
                 "Set INVOICEXML_API_KEY environment variable. " +
@@ -37,7 +38,7 @@ public static class CreateFacturX
                 {
                     name              = "Acme",
                     vatIdentifier     = "DE123456789",
-                    legalRegistration = "HRB 12345",
+                    legalRegistration = new { identifier = "HRB 12345" },
                     postalAddress = new
                     {
                         line1    = "Hauptstraße 12",

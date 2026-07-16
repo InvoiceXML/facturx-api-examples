@@ -7,6 +7,7 @@
 import requests
 import sys
 
+# Raw key only, without the "Bearer " prefix (it is added below).
 api_key = "YOUR_API_KEY"
 
 response = requests.post(
