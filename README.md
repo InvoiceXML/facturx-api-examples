@@ -2,7 +2,7 @@
 
 Open-source code examples for working with **Factur-X**, the European hybrid e-invoicing standard combining a human-readable PDF/A-3 with embedded structured XML data. Compliant with **EN 16931** and technically identical to **ZUGFeRD 2.x** in Germany.
 
-Examples in **C#, Java, PHP, JavaScript, Node.js, and Python** covering every common Factur-X operation: invoice creation, validation, structured data extraction as JSON, raw XML extraction, and (experimental) AI-powered conversion of plain PDF invoices into compliant Factur-X documents.
+Examples in **C#, Java, PHP, JavaScript, Node.js, Python, and Ruby** covering every common Factur-X operation: invoice creation, validation, structured data extraction as JSON, raw XML extraction, and (experimental) AI-powered conversion of plain PDF invoices into compliant Factur-X documents.
 
 Provided and maintained by [InvoiceXML](https://www.invoicexml.com), a complete e-invoice compliance toolkit for electronic invoicing standards, including Factur-X, ZUGFeRD, UBL, Peppol BIS Billing, and XRechnung, available via REST-API, no-code platforms, and MCP server.
 
@@ -24,6 +24,7 @@ The EN 16931 specification alone runs over 400 pages, PDF/A-3b conformance is st
   - [Create and validate Factur-X with JavaScript in the browser](#create-and-validate-factur-x-with-javascript-in-the-browser)
   - [Create and validate Factur-X with Node.js](#create-and-validate-factur-x-with-nodejs)
   - [Create and validate Factur-X with Python](#create-and-validate-factur-x-with-python)
+  - [Create and validate Factur-X with Ruby](#create-and-validate-factur-x-with-ruby)
 - [Extract structured data from Factur-X as JSON](#extract-structured-data-from-factur-x-as-json)
 - [Extract embedded XML from a Factur-X PDF](#extract-embedded-xml-from-a-factur-x-pdf)
 - [AI-powered PDF to Factur-X conversion (Experimental)](#ai-powered-pdf-to-factur-x-conversion-experimental)
@@ -152,6 +153,22 @@ Browser-side examples for generating and inspecting Factur-X invoices client-sid
 
 [Open the Python examples →](./python)
 
+### Create and validate Factur-X with Ruby
+
+Standard library only (`Net::HTTP`), no gems. The Ruby folder additionally covers AI parsing of old-school PDFs with confidence scores and embedded attachment extraction.
+
+```
+/ruby
+  create.rb
+  validate.rb
+  extract_json.rb
+  extract_xml.rb
+  parse_json.rb
+  extract_attachments.rb
+```
+
+[Open the Ruby examples →](./ruby)
+
 ---
 
 ## Extract structured data from Factur-X as JSON
@@ -249,7 +266,7 @@ Factur-X is a hybrid PDF+XML format using the UN/CEFACT Cross-Industry Invoice (
 
 Pull requests are welcome. Useful contributions include:
 
-- Additional languages (Go, Rust, Ruby, Kotlin, Swift)
+- Additional languages (Go, Rust, Kotlin, Swift)
 - Alternative library implementations in existing languages
 - Sample invoice fixtures covering edge cases (multi-currency, intra-EU reverse charge, zero-rated supplies, credit notes)
 - Translations of the README and inline comments
