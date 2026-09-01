@@ -42,7 +42,7 @@ Set `apiKey` in the examples to the raw key only, without the `Bearer ` prefix. 
 | [`validate.html`](./validate.html) | Validate a Factur-X file against schematron rules | [`POST /v1/validate/facturx`](https://www.invoicexml.com/docs/api/validate/facturx) |
 | [`extract-json.html`](./extract-json.html) | Extract Factur-X invoice data as JSON | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`extract-xml.html`](./extract-xml.html) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
-| [`ai-convert.html`](./ai-convert.html) | (Experimental) Convert a plain PDF to Factur-X with AI | [`POST /v1/transform/to/facturx`](https://www.invoicexml.com/docs/api/transform/to/facturx) |
+| [`embed.html`](./embed.html) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
 
 Each file is a complete, runnable HTML page. Open it in a browser, paste your API key into the `<script>` block, and click the button.
 
@@ -150,13 +150,30 @@ Returns the raw `factur-x.xml` payload (UN/CEFACT Cross-Industry Invoice syntax)
 
 ---
 
-## (Experimental) Convert a plain PDF to Factur-X with AI
+## Embed your own XML into your own PDF
 
-> **Experimental feature. Human verification required before any production use.**
->
-> AI extraction can make subtle mistakes that automated validators may not catch: wrong tax category codes, transposed amounts, missing seller VAT identifiers, incorrect currency formatting. Always review the output PDF before sending it to a customer or tax authority. See the [AI conversion notes in the main README](../README.md#ai-powered-pdf-to-factur-x-conversion-experimental).
+When your app already has the invoice PDF and the EN 16931 XML, post both files and the API keeps your visual layer exactly as designed, promotes the container to PDF/A-3, and attaches the XML as `factur-x.xml` with the correct AFRelationship and XMP metadata.
 
-[Full example: `ai-convert.html`](./ai-convert.html) | [API reference](https://www.invoicexml.com/docs/api/transform/to/facturx)
+```javascript
+const form = new FormData();
+form.append('pdf', pdfFile);   // from an <input type="file">
+form.append('xml', xmlFile);
+form.append('skipValidation', 'false');
+
+const response = await fetch('https://api.invoicexml.com/v1/embed/facturx', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + apiKey },
+    body: form,
+});
+
+const blob = await response.blob();   // the hybrid PDF/A-3
+```
+
+The XML runs through the complete `/v1/validate/facturx` rule set before anything is embedded, so a non-compliant invoice never leaves the API: fatal findings come back as a 400 with `errorCode` 4001 and the full finding list. Set `skipValidation` to `true` for packaging-only mode, where the structural checks (CII root element, official BT-24 profile URN, profile XSD) still apply but the business rules are skipped.
+
+Only UN/CEFACT CII XML is accepted. If your invoice is UBL, convert it first with [`POST /v1/convert/ubl/to/cii`](https://www.invoicexml.com/docs/api/convert/ubl/to/cii). For the German packaging conventions, call `/v1/embed/zugferd` instead, same request shape.
+
+[Full example: `embed.html`](./embed.html) | [API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 
 ---
 
@@ -268,7 +285,7 @@ this.http.post('/api/facturx/create', payload, { responseType: 'blob' })
 - [Validate Factur-X API reference](https://www.invoicexml.com/docs/api/validate/facturx)
 - [Extract JSON API reference](https://www.invoicexml.com/docs/api/extract/json)
 - [Extract XML API reference](https://www.invoicexml.com/docs/api/extract/xml)
-- [Transform to Factur-X API reference](https://www.invoicexml.com/docs/api/transform/to/facturx)
+- [Embed into Factur-X API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 - [MDN: Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
 - [MDN: FormData](https://developer.mozilla.org/en-US/docs/Web/API/FormData)
 - [Main repository README](../README.md)

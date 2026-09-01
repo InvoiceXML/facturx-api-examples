@@ -37,7 +37,7 @@ If you prefer plain `HttpClient` over Flurl, every example translates directly. 
 | [`Validate.cs`](./Validate.cs) | Validate a Factur-X file against schematron rules | [`POST /v1/validate/facturx`](https://www.invoicexml.com/docs/api/validate/facturx) |
 | [`ExtractJson.cs`](./ExtractJson.cs) | Extract Factur-X invoice data as JSON | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`ExtractXml.cs`](./ExtractXml.cs) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
-| [`AiConvert.cs`](./AiConvert.cs) | (Experimental) Convert a plain PDF to Factur-X with AI | [`POST /v1/transform/to/facturx`](https://www.invoicexml.com/docs/api/transform/to/facturx) |
+| [`Embed.cs`](./Embed.cs) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
 
 > **Note on the snippets below:** they are excerpts from those files and assume an `apiKey` variable is already defined and that the code runs inside an `async` method. The full files show the complete, compilable versions.
 
@@ -157,33 +157,30 @@ Returns the raw `factur-x.xml` payload (UN/CEFACT Cross-Industry Invoice syntax)
 
 ---
 
-## (Experimental) Convert a plain PDF to Factur-X with AI
+## Embed your own XML into your own PDF
 
-> **Experimental feature. Human verification required before any production use.**
->
-> Real-world PDF invoices are often messy: scanned at low quality, irregularly formatted, multi-page, multilingual, or missing fields that EN 16931 requires. AI extraction can make subtle mistakes that automated validators may not catch: wrong tax category codes, transposed amounts, missing seller VAT identifiers, incorrect currency formatting.
->
-> Always review the output PDF before sending it to a customer or tax authority. See the [AI conversion notes in the main README](../README.md#ai-powered-pdf-to-factur-x-conversion-experimental).
+When your application already renders the invoice PDF and already produces the EN 16931 XML, you do not need the full create flow. Post both files and the API keeps your visual layer exactly as designed, promotes the container to PDF/A-3, and attaches the XML as `factur-x.xml` with the correct AFRelationship and XMP metadata.
 
 ```csharp
 using Flurl.Http;
 
-var pdfBytes = await "https://api.invoicexml.com/v1/transform/to/facturx"
+var pdfBytes = await "https://api.invoicexml.com/v1/embed/facturx"
     .WithOAuthBearerToken(apiKey)
     .PostMultipartAsync(mp => mp
-        .AddFile("file", "plain-invoice.pdf", "application/pdf")
-        .AddString("version", "2.3.2")
-        .AddString("profile", "extended")
-        .AddString("syntax", "cii")
-        .AddString("embed", "true")
-        .AddString("language", "en")
+        .AddFile("pdf", "invoice.pdf", "application/pdf")
+        .AddFile("xml", "factur-x.xml", "application/xml")
+        .AddString("skipValidation", "false")
     )
     .ReceiveBytes();
 
-await File.WriteAllBytesAsync("converted-facturx.pdf", pdfBytes);
+await File.WriteAllBytesAsync("invoice-facturx.pdf", pdfBytes);
 ```
 
-[Full example: `AiConvert.cs`](./AiConvert.cs) | [API reference](https://www.invoicexml.com/docs/api/transform/to/facturx)
+The XML runs through the complete `/v1/validate/facturx` rule set before anything is embedded, so a non-compliant invoice never leaves the API: fatal findings come back as a 400 with `errorCode` 4001 and the full finding list. Set `skipValidation` to `true` for packaging-only mode, where the structural checks (CII root element, official BT-24 profile URN, profile XSD) still apply but the business rules are skipped.
+
+Only UN/CEFACT CII XML is accepted. If your invoice is UBL, convert it first with [`POST /v1/convert/ubl/to/cii`](https://www.invoicexml.com/docs/api/convert/ubl/to/cii). For the German packaging conventions, call `/v1/embed/zugferd` instead, same request shape.
+
+[Full example: `Embed.cs`](./Embed.cs) | [API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 
 ---
 
@@ -229,6 +226,6 @@ await ExtractJson.RunAsync("invoice.pdf");
 - [Validate Factur-X API reference](https://www.invoicexml.com/docs/api/validate/facturx)
 - [Extract JSON API reference](https://www.invoicexml.com/docs/api/extract/json)
 - [Extract XML API reference](https://www.invoicexml.com/docs/api/extract/xml)
-- [Transform to Factur-X API reference](https://www.invoicexml.com/docs/api/transform/to/facturx)
+- [Embed into Factur-X API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 - [Flurl.Http documentation](https://flurl.dev/docs/fluent-http/)
 - [Main repository README](../README.md)

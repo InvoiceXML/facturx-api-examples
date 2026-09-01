@@ -43,7 +43,7 @@ uv pip install requests
 | [`validate.py`](./validate.py) | Validate a Factur-X file against schematron rules | [`POST /v1/validate/facturx`](https://www.invoicexml.com/docs/api/validate/facturx) |
 | [`extract_json.py`](./extract_json.py) | Extract Factur-X invoice data as JSON | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`extract_xml.py`](./extract_xml.py) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
-| [`ai_convert.py`](./ai_convert.py) | (Experimental) Convert a plain PDF to Factur-X with AI | [`POST /v1/transform/to/facturx`](https://www.invoicexml.com/docs/api/transform/to/facturx) |
+| [`embed.py`](./embed.py) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
 
 Each file is standalone and runnable with `python create.py`. Open the file, replace `YOUR_API_KEY` with your real key, and execute.
 
@@ -160,30 +160,33 @@ with open("factur-x.xml", "w", encoding="utf-8") as f:
 
 ---
 
-## (Experimental) Convert a plain PDF to Factur-X with AI
+## Embed your own XML into your own PDF
 
-> **Experimental feature. Human verification required before any production use.**
->
-> Real-world PDF invoices are often messy: scanned at low quality, irregularly formatted, multi-page, or missing fields that EN 16931 requires. AI extraction can make subtle mistakes that automated validators may not catch: wrong tax category codes, transposed amounts, missing seller VAT identifiers, incorrect currency formatting.
->
-> Always review the output PDF before sending it to a customer or tax authority. See the [AI conversion notes in the main README](../README.md#ai-powered-pdf-to-factur-x-conversion-experimental).
+When your application already renders the invoice PDF and already produces the EN 16931 XML, post both files and the API keeps your visual layer exactly as designed, promotes the container to PDF/A-3, and attaches the XML as `factur-x.xml` with the correct AFRelationship and XMP metadata.
 
 ```python
 import requests
 
-response = requests.post(
-    "https://api.invoicexml.com/v1/transform/to/facturx",
-    headers={"Authorization": f"Bearer {api_key}"},
-    files={"file": ("plain-invoice.pdf", open("plain-invoice.pdf", "rb"), "application/pdf")},
-    data={"version": "2.3.2", "profile": "extended", "syntax": "cii",
-          "embed": "true", "language": "en"},
-)
+with open("invoice.pdf", "rb") as pdf, open("factur-x.xml", "rb") as xml:
+    response = requests.post(
+        "https://api.invoicexml.com/v1/embed/facturx",
+        headers={"Authorization": f"Bearer {api_key}"},
+        files={
+            "pdf": ("invoice.pdf", pdf, "application/pdf"),
+            "xml": ("factur-x.xml", xml, "application/xml"),
+        },
+        data={"skipValidation": "false"},
+    )
 
-with open("converted-facturx.pdf", "wb") as f:
+with open("invoice-facturx.pdf", "wb") as f:
     f.write(response.content)
 ```
 
-[Full example: `ai_convert.py`](./ai_convert.py) | [API reference](https://www.invoicexml.com/docs/api/transform/to/facturx)
+The XML runs through the complete `/v1/validate/facturx` rule set before anything is embedded, so a non-compliant invoice never leaves the API: fatal findings come back as a 400 with `errorCode` 4001 and the full finding list. Set `skipValidation` to `"true"` for packaging-only mode, where the structural checks (CII root element, official BT-24 profile URN, profile XSD) still apply but the business rules are skipped.
+
+Only UN/CEFACT CII XML is accepted. If your invoice is UBL, convert it first with [`POST /v1/convert/ubl/to/cii`](https://www.invoicexml.com/docs/api/convert/ubl/to/cii). For the German packaging conventions, call `/v1/embed/zugferd` instead, same request shape.
+
+[Full example: `embed.py`](./embed.py) | [API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 
 ---
 
@@ -277,6 +280,6 @@ The `requests` library works in Lambda directly. Include it via Lambda layers or
 - [Validate Factur-X API reference](https://www.invoicexml.com/docs/api/validate/facturx)
 - [Extract JSON API reference](https://www.invoicexml.com/docs/api/extract/json)
 - [Extract XML API reference](https://www.invoicexml.com/docs/api/extract/xml)
-- [Transform to Factur-X API reference](https://www.invoicexml.com/docs/api/transform/to/facturx)
+- [Embed into Factur-X API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 - [requests library documentation](https://requests.readthedocs.io/)
 - [Main repository README](../README.md)

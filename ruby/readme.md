@@ -47,6 +47,7 @@ The examples use `Net::HTTP`, `JSON`, and `URI` from the standard library. Ruby 
 | [`extract_xml.rb`](./extract_xml.rb) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
 | [`parse_json.rb`](./parse_json.rb) | Parse an old-school invoice PDF (scan, photo) with AI, with confidence scores | [`POST /v1/parse/json`](https://www.invoicexml.com/docs/api/parse/json) |
 | [`extract_attachments.rb`](./extract_attachments.rb) | Extract embedded supporting documents (BG-24) as a ZIP | [`POST /v1/extract/attachments`](https://www.invoicexml.com/docs/api/extract/attachments) |
+| [`embed.rb`](./embed.rb) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
 
 Each file is standalone and runnable with `ruby create.rb`. Set `INVOICEXML_API_KEY` in your environment and execute. The files that take an input document default to `facture-facturx.pdf` (the output of `create.rb`), or accept a path as the first argument.
 
@@ -215,6 +216,30 @@ E-invoices can carry their supporting documents inside the invoice itself: deliv
 
 ---
 
+## Embed your own XML into your own PDF in Ruby
+
+When your app already renders the invoice PDF (Prawn, wicked_pdf, a designer's template) and already produces the EN 16931 XML, post both files to `POST /v1/embed/facturx`. Your visual layer is kept exactly as designed, the container is promoted to PDF/A-3, and the XML is attached as `factur-x.xml` with the correct AFRelationship and XMP metadata. `Net::HTTP#set_form` handles the two file parts in one multipart request:
+
+```ruby
+response = File.open("invoice.pdf", "rb") do |pdf|
+  File.open("factur-x.xml", "rb") do |xml|
+    request.set_form(
+      [["pdf", pdf], ["xml", xml], ["skipValidation", "false"]],
+      "multipart/form-data"
+    )
+    api_http(uri).request(request)
+  end
+end
+```
+
+The XML runs through the complete `/v1/validate/facturx` rule set before anything is embedded, so a non-compliant invoice never leaves the API: fatal findings come back as a 400 with `errorCode` 4001 and the full finding list. Set `skipValidation` to `"true"` for packaging-only mode, where the structural checks (CII root element, official BT-24 profile URN, profile XSD) still apply but the business rules are skipped.
+
+Only UN/CEFACT CII XML is accepted. If your invoice is UBL, convert it first with [`POST /v1/convert/ubl/to/cii`](https://www.invoicexml.com/docs/api/convert/ubl/to/cii). For the German packaging conventions, call `/v1/embed/zugferd` instead, same request shape.
+
+[Full example: `embed.rb`](./embed.rb) | [API reference](https://www.invoicexml.com/docs/api/embed/facturx)
+
+---
+
 ## Rails integration
 
 In a Rails app, promote the calls into a service object. Faraday with `faraday-multipart` is the idiomatic client, and Rails credentials keep the key out of environment-variable sprawl:
@@ -285,5 +310,6 @@ Run generation in an ActiveJob rather than a request cycle, attach the returned 
 - [Extract XML API reference](https://www.invoicexml.com/docs/api/extract/xml)
 - [Parse JSON (AI) API reference](https://www.invoicexml.com/docs/api/parse/json)
 - [Extract attachments API reference](https://www.invoicexml.com/docs/api/extract/attachments)
+- [Embed into Factur-X API reference](https://www.invoicexml.com/docs/api/embed/facturx)
 - [Ruby Net::HTTP documentation](https://docs.ruby-lang.org/en/master/Net/HTTP.html)
 - [Main repository README](../README.md)
