@@ -43,7 +43,7 @@ The EN 16931 specification alone runs over 400 pages, PDF/A-3b conformance is st
 
 Factur-X is fully aligned with **EN 16931**, the European norm for electronic invoicing, and is accepted or mandated in multiple European jurisdictions for B2B and B2G invoice exchange. In Germany the same specification is published under the name **ZUGFeRD 2.x**. The technical content is identical; only the branding differs.
 
-For a longer introduction including history, profiles, and legal status, see the [Factur-X overview guide on invoicexml.com](https://invoicexml.com/facturx).
+For a longer introduction including history, profiles, and legal status, see the [Factur-X overview guide on invoicexml.com](https://www.invoicexml.com/facturx).
 
 ## Why use this repository
 
@@ -237,7 +237,7 @@ Factur-X is one of several formats in the European e-invoicing landscape. If you
 - **XRechnung**: German B2G-mandatory profile, available in both UBL and CII syntax.
 - **EN 16931**: the European norm that underlies Factur-X, ZUGFeRD, Peppol BIS, and XRechnung.
 
-For a side-by-side comparison of when to use which format, see the [e-invoicing standards comparison on invoicexml.com](https://invoicexml.com/standards).
+For a side-by-side comparison of when to use which format, see the [e-invoicing standards comparison on invoicexml.com](https://www.invoicexml.com/standards).
 
 ---
 
@@ -263,7 +263,7 @@ Factur-X is a hybrid PDF+XML format using the UN/CEFACT Cross-Industry Invoice (
 - [ZUGFeRD specification (FeRD, Germany)](https://www.ferd-net.de/standards/zugferd)
 - [EN 16931 (European Committee for Standardization)](https://www.cencenelec.eu/)
 - [Peppol BIS Billing 3.0](https://docs.peppol.eu/poacc/billing/3.0/)
-- [invoicexml.com](https://invoicexml.com): guides, tutorials, validators, and standard comparisons for Factur-X, ZUGFeRD, UBL, Peppol, and XRechnung
+- [invoicexml.com](https://www.invoicexml.com): guides, tutorials, validators, and standard comparisons for Factur-X, ZUGFeRD, UBL, Peppol, and XRechnung
 
 ---
 
