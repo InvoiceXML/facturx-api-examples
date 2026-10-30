@@ -1,6 +1,6 @@
 # Factur-X for Java: InvoiceXML API Examples
 
-Java code samples for creating, validating, and extracting **Factur-X** electronic invoices using the **[InvoiceXML API](https://www.invoicexml.com)**. Requires **Java 15 or later** (Java 17 or 21 LTS recommended): `Create.java` uses text blocks, which were introduced in Java 15. The other examples also compile on Java 8. Runs in Spring Boot, Quarkus, Micronaut, Jakarta EE, Android, AWS Lambda, or plain `public static void main` console apps.
+Java code samples for creating, validating, and extracting **Factur-X** electronic invoices using the **[InvoiceXML API](https://www.invoicexml.com)**. Requires **Java 15 or later** (Java 17 or 21 LTS recommended): `Create.java` and `SendEmail.java` use text blocks, which were introduced in Java 15. The other examples also compile on Java 8. Runs in Spring Boot, Quarkus, Micronaut, Jakarta EE, Android, AWS Lambda, or plain `public static void main` console apps.
 
 For background on the Factur-X standard itself (what it is, profiles, legal status), see the [main repository README](../README.md).
 
@@ -20,7 +20,7 @@ Authorization: Bearer YOUR_API_KEY
 
 ## Requirements
 
-- **Java 15 or later** (Java 17 or 21 LTS recommended). `Create.java` uses text blocks, a Java 15+ feature; the other four examples also compile on Java 8.
+- **Java 15 or later** (Java 17 or 21 LTS recommended). `Create.java` and `SendEmail.java` use text blocks, a Java 15+ feature; the other examples also compile on Java 8.
 - **OkHttp 4.x** for clean multipart handling and bearer auth
 
 ### Maven
@@ -46,10 +46,12 @@ OkHttp is the de facto standard HTTP client for modern Java. Java's built-in `ja
 | File | Operation | API endpoint |
 |---|---|---|
 | [`Create.java`](./Create.java) | Build a Factur-X PDF/A-3 invoice with embedded EN 16931 XML | [`POST /v1/create/facturx`](https://www.invoicexml.com/docs/api/create/facturx) |
+| [`SendEmail.java`](./SendEmail.java) | Create a Factur-X invoice and email it from your own domain | [`POST /v1/create/facturx/email`](https://www.invoicexml.com/docs/api/create/facturx/email) |
 | [`Validate.java`](./Validate.java) | Validate a Factur-X file against schematron rules | [`POST /v1/validate/facturx`](https://www.invoicexml.com/docs/api/validate/facturx) |
 | [`ExtractJson.java`](./ExtractJson.java) | Extract Factur-X invoice data as JSON | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`ExtractXml.java`](./ExtractXml.java) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
 | [`Embed.java`](./Embed.java) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
+| [`SendEmbeddedEmail.java`](./SendEmbeddedEmail.java) | Embed your own CII XML into your own PDF and email it from your own domain | [`POST /v1/embed/facturx/email`](https://www.invoicexml.com/docs/api/embed/facturx/email) |
 
 Each file is a standalone `public class` with a `main` method, runnable with `javac` and `java` directly, or as part of any Maven or Gradle project.
 

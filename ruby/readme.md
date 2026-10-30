@@ -42,12 +42,14 @@ The examples use `Net::HTTP`, `JSON`, and `URI` from the standard library. Ruby 
 | File | Operation | API endpoint |
 |---|---|---|
 | [`create.rb`](./create.rb) | Build a Factur-X PDF/A-3 invoice with embedded EN 16931 XML | [`POST /v1/create/facturx`](https://www.invoicexml.com/docs/api/create/facturx) |
+| [`send_email.rb`](./send_email.rb) | Create a Factur-X invoice and email it from your own domain | [`POST /v1/create/facturx/email`](https://www.invoicexml.com/docs/api/create/facturx/email) |
 | [`validate.rb`](./validate.rb) | Validate a Factur-X file against schematron rules | [`POST /v1/validate/facturx`](https://www.invoicexml.com/docs/api/validate/facturx) |
 | [`extract_json.rb`](./extract_json.rb) | Extract Factur-X invoice data as JSON (deterministic, no AI) | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`extract_xml.rb`](./extract_xml.rb) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
 | [`parse_json.rb`](./parse_json.rb) | Parse an old-school invoice PDF (scan, photo) with AI, with confidence scores | [`POST /v1/parse/json`](https://www.invoicexml.com/docs/api/parse/json) |
 | [`extract_attachments.rb`](./extract_attachments.rb) | Extract embedded supporting documents (BG-24) as a ZIP | [`POST /v1/extract/attachments`](https://www.invoicexml.com/docs/api/extract/attachments) |
 | [`embed.rb`](./embed.rb) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
+| [`send_embedded_email.rb`](./send_embedded_email.rb) | Embed your own CII XML into your own PDF and email it from your own domain | [`POST /v1/embed/facturx/email`](https://www.invoicexml.com/docs/api/embed/facturx/email) |
 
 Each file is standalone and runnable with `ruby create.rb`. Set `INVOICEXML_API_KEY` in your environment and execute. The files that take an input document default to `facture-facturx.pdf` (the output of `create.rb`), or accept a path as the first argument.
 

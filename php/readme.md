@@ -31,10 +31,12 @@ These examples use the built-in `curl_*` functions and `CURLFile` (available sin
 | File | Operation | API endpoint |
 |---|---|---|
 | [`create.php`](./create.php) | Build a Factur-X PDF/A-3 invoice with embedded EN 16931 XML | [`POST /v1/create/facturx`](https://www.invoicexml.com/docs/api/create/facturx) |
+| [`send-email.php`](./send-email.php) | Create a Factur-X invoice and email it from your own domain | [`POST /v1/create/facturx/email`](https://www.invoicexml.com/docs/api/create/facturx/email) |
 | [`validate.php`](./validate.php) | Validate a Factur-X file against schematron rules | [`POST /v1/validate/facturx`](https://www.invoicexml.com/docs/api/validate/facturx) |
 | [`extract-json.php`](./extract-json.php) | Extract Factur-X invoice data as JSON | [`POST /v1/extract/json`](https://www.invoicexml.com/docs/api/extract/json) |
 | [`extract-xml.php`](./extract-xml.php) | Extract the raw `factur-x.xml` from a Factur-X PDF | [`POST /v1/extract/xml`](https://www.invoicexml.com/docs/api/extract/xml) |
 | [`embed.php`](./embed.php) | Embed your own CII XML into your own PDF as a Factur-X PDF/A-3 | [`POST /v1/embed/facturx`](https://www.invoicexml.com/docs/api/embed/facturx) |
+| [`send-embedded-email.php`](./send-embedded-email.php) | Embed your own CII XML into your own PDF and email it from your own domain | [`POST /v1/embed/facturx/email`](https://www.invoicexml.com/docs/api/embed/facturx/email) |
 
 Each file is standalone and runnable with `php create.php`. Open the file, replace `YOUR_API_KEY` with your real key, and execute.
 
